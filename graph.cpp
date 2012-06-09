@@ -173,7 +173,47 @@ void graph::dump_epanet(const char *file) const {
     }
     fprintf(out, " %d               	%d               	%d               	1000        	12          	100         	0           	Open  	;\n", pipe_id++, 2, 1);
     
+    fprintf(out, "\n[TIMES]\n");
+    fprintf(out, "DURATION    20 HOURS");
     fprintf(out, "\n[END]");
     
     fclose(out);
+}
+
+int breadth_first(const graph &g, int node, bool *seen) {
+   int c = 0;
+   seen[node] = true;
+   for (int nb: g.connections[node]) {
+      if (seen[nb] == false) {
+         //seen[nb] = true;
+         c += breadth_first(g, nb, seen);
+      }
+   }
+   return c+1;
+}
+
+bool graph::is_connected() const {
+   bool *seen = new bool[nodes.size()];
+   bool c = is_connected(seen);
+   delete[] seen;
+   return c;
+}
+
+bool graph::is_connected(bool *seen) const {
+   for (int i = 0; i < nodes.size(); i++) seen[i] = false;
+   int reachable = breadth_first(*this, 0, seen);
+   return reachable == nodes.size();
+}
+
+void graph::make_connected() {
+   bool *seen = new bool[nodes.size()];
+   
+   while (true) {
+      for (int i = 0; i < nodes.size(); i++) seen[i] = false;
+      if (breadth_first(*this, 0, seen) == nodes.size()) {
+         break;
+      }
+      int nc;
+      for (nc = 0; seen[nc]; nc++) {}
+   }
 }

@@ -49,7 +49,20 @@ public:
      */
     void plot(const char *file) const;
     
+    /**
+     * @brief make_symmetric
+     * @return 
+     */
     int make_symmetric();
+    
+    /**
+     * @brief checks if the graph is connected
+     * @return true if connected otherwise false
+     */
+    bool is_connected() const;
+    bool is_connected(bool *seen) const;
+    
+    void make_connected();
     
     
     std::vector<coord> nodes;

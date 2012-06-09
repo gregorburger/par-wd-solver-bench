@@ -14,7 +14,14 @@
 void run(int n, int k, QString epanet_exe) {
    
    //create random graph and dunmp to a tmp epanet file
-   graph g = graph::random(n, k);
+   graph g;
+   printf("\nsearching for a connected graph(%d, %d)", n, k);
+   fflush(stdout);
+   while (true) {
+       g = graph::random(n, k);
+       if (g.is_connected()) break;
+   }
+   printf("found\n");
    g.make_symmetric();
    
    char tmp[L_tmpnam];
@@ -33,10 +40,13 @@ void run(int n, int k, QString epanet_exe) {
    
    //run epanet
    QStringList args = {tmp, EN_OUT_FILE};
+   p.setStandardOutputFile("/dev/stdout", QIODevice::Append);
+   p.setStandardErrorFile("/dev/stderr", QIODevice::Append);
    p.start(epanet_exe, args);
+   std::cout << "started process with pid " << p.pid() << std::endl;
    p.waitForFinished(-1);
-   std::cout << p.readAllStandardError().constData() << std::endl;
-   std::cout << p.readAllStandardOutput().constData() << std::endl;
+   //std::cout << p.readAllStandardError().constData() << std::endl;
+   //std::cout << p.readAllStandardOutput().constData() << std::endl;
    
    //cleanup
    QFile::remove(EN_OUT_FILE);
@@ -45,6 +55,8 @@ void run(int n, int k, QString epanet_exe) {
 
 
 int main(int argc, char **argv) {
+    /*graph g = graph::random(100, 30);
+    bool c = g.is_connected();*/
     QApplication app(argc, argv);
     if (app.arguments().size() < 2 || !QFile::exists(app.arguments()[1])) {
         std::cout << "provide epanet binary file" << std::endl;
@@ -54,8 +66,8 @@ int main(int argc, char **argv) {
     QString epanet_exe = app.arguments()[1];
     std::cout << "using " << epanet_exe.toStdString() << " as epanet exe" << std::endl;
     
-    for (int n = 100; n < 1000; n+= 50) {
-       for (int k = 4; k <= 20; k+= 4) {
+    for (int n = 1000; n < 10000; n+= 500) {
+       for (int k = 8; k <= 20; k+= 4) {
           run(n, k, epanet_exe);
        }
     }
