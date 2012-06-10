@@ -174,7 +174,7 @@ void graph::dump_epanet(const char *file) const {
     fprintf(out, " %d               	%d               	%d               	1000        	12          	100         	0           	Open  	;\n", pipe_id++, 2, 1);
     
     fprintf(out, "\n[TIMES]\n");
-    fprintf(out, "DURATION    20 HOURS");
+    fprintf(out, "DURATION    250 HOURS");
     fprintf(out, "\n[END]");
     
     fclose(out);

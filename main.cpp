@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
     QString epanet_exe = app.arguments()[1];
     std::cout << "using " << epanet_exe.toStdString() << " as epanet exe" << std::endl;
     
-    for (int n = 1000; n < 10000; n+= 500) {
-       for (int k = 8; k <= 20; k+= 4) {
+    for (int n = 200; n <= 1800; n+= 200) {
+       for (int k = 5; k <= 20; k+= 1) {
           run(n, k, epanet_exe);
        }
     }
