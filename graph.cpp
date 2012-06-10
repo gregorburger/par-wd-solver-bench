@@ -218,7 +218,6 @@ void graph::make_connected() {
     }
     std::vector<int> component(boost::num_vertices(g));
     int nc = boost::strong_components(g, &component[0]);
-    std::cout << nc << std::endl;
     for (int c = 0; c < nc-1; c++) {
         std::pair<int, int> new_vertex(-1, -1);
         double min_dist = 10.0; //max dist is max sqrt(2)
