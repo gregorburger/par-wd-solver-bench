@@ -3,6 +3,7 @@ project(par-wb-bench)
 
 find_package(OpenMP)
 find_package(Qt4 REQUIRED QtCore QtGui)
+find_package(Boost COMPONENTS graph REQUIRED)
 
 include(${QT_USE_FILE})
 

@@ -5,8 +5,8 @@
 #include <boost/random.hpp>
 
 boost::random::mt19937 rng(std::time(0));
-boost::random::normal_distribution<> gen(0.0, 0.7);
-//boost::random::uniform_01<> gen;
+//boost::random::normal_distribution<> gen(0.0, 0.7);
+boost::random::uniform_01<> gen;
 
 void graph::dump_matlab(const char *file) const {
     FILE *out = fopen(file, "w");
@@ -205,15 +205,37 @@ bool graph::is_connected(bool *seen) const {
    return reachable == nodes.size();
 }
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/graph/strong_components.hpp>
+
 void graph::make_connected() {
-   bool *seen = new bool[nodes.size()];
-   
-   while (true) {
-      for (int i = 0; i < nodes.size(); i++) seen[i] = false;
-      if (breadth_first(*this, 0, seen) == nodes.size()) {
-         break;
-      }
-      int nc;
-      for (nc = 0; seen[nc]; nc++) {}
-   }
+    boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> g;
+    for (int i = 0; i < connections.size(); i++) {
+        for (int j = 0; j < connections[i].size(); j++) {
+            boost::add_edge(i, connections[i][j], g);
+        }
+    }
+    std::vector<int> component(boost::num_vertices(g));
+    int nc = boost::strong_components(g, &component[0]);
+    std::cout << nc << std::endl;
+    for (int c = 0; c < nc-1; c++) {
+        std::pair<int, int> new_vertex(-1, -1);
+        double min_dist = 10.0; //max dist is max sqrt(2)
+        for (int i = 0; i < component.size(); i++) {
+            if (component[i] != c) continue;
+            for (int j = 0; j < component.size(); j++) {
+                if (component[j] != c+1) continue;
+                double dist = nodes[i].dist(nodes[j]);
+                if (dist < min_dist) {
+                    dist = min_dist;
+                    new_vertex.first = i;
+                    new_vertex.second = j;
+                }
+            }
+        }
+        connections[new_vertex.first].push_back(new_vertex.second);
+        assert(new_vertex.first >= 0);
+    }
+    assert(is_connected());
 }

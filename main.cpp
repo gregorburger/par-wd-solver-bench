@@ -15,13 +15,9 @@ void run(int n, int k, QString epanet_exe) {
    
    //create random graph and dunmp to a tmp epanet file
    graph g;
-   printf("\nsearching for a connected graph(%d, %d)", n, k);
-   fflush(stdout);
-   while (true) {
-       g = graph::random(n, k);
-       if (g.is_connected()) break;
-   }
-   printf("found\n");
+   if (!g.is_connected())
+       g.make_connected();
+
    g.make_symmetric();
    
    char tmp[L_tmpnam];
@@ -53,11 +49,9 @@ void run(int n, int k, QString epanet_exe) {
    QFile::remove(tmp);
 }
 
-
 int main(int argc, char **argv) {
-    /*graph g = graph::random(100, 30);
-    bool c = g.is_connected();*/
     QApplication app(argc, argv);
+
     if (app.arguments().size() < 2 || !QFile::exists(app.arguments()[1])) {
         std::cout << "provide epanet binary file" << std::endl;
         exit(-1);
