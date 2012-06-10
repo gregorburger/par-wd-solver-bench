@@ -14,7 +14,7 @@
 void run(int n, int k, QString epanet_exe) {
    
    //create random graph and dunmp to a tmp epanet file
-   graph g;
+   graph g = graph::random(n, k);
    if (!g.is_connected())
        g.make_connected();
 
@@ -60,8 +60,8 @@ int main(int argc, char **argv) {
     QString epanet_exe = app.arguments()[1];
     std::cout << "using " << epanet_exe.toStdString() << " as epanet exe" << std::endl;
     
-    for (int n = 200; n <= 1800; n+= 200) {
-       for (int k = 5; k <= 20; k+= 1) {
+    for (int n = 100; n <= 1800; n+= 200) {
+       for (int k = 2; k <= 20; k+= 1) {
           run(n, k, epanet_exe);
        }
     }
