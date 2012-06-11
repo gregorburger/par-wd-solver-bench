@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 
-#define BENCH_FILE_MASK   "/tmp/benchfile_%1-%2n_%3-%4k_%5cores.txt"
-#define EN_OUT_FILE  "/tmp/bench_en_out.txt"
+#define BENCH_FILE_MASK   "benchfile_%1-%2n_%3-%4k_%5cores.txt"
+#define EN_OUT_FILE  "bench_en_out.txt"
 #define EN_BINARY_PATH "./parpenet/src/epanet2"
 
 
