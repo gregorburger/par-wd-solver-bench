@@ -8,10 +8,10 @@
 
 #include <stdio.h>
 
-#define BENCH_FILE   "/tmp/benchfile.txt"
+#define BENCH_FILE_MASK   "/tmp/benchfile_%1-%2n_%3-%4k_%5cores.txt"
 #define EN_OUT_FILE  "/tmp/bench_en_out.txt"
 
-void run(int n, int k, QString epanet_exe) {
+void run(int n, int k, QString epanet_exe, QString bench_file_path) {
    
    //create random graph and dunmp to a tmp epanet file
    graph g = graph::random(n, k);
@@ -24,13 +24,13 @@ void run(int n, int k, QString epanet_exe) {
    tmpnam(tmp);
    g.dump_epanet(tmp);
    
-   FILE *bench_file = fopen(BENCH_FILE, "a");
-   fprintf(bench_file, "%d\t%d\t", n, k);
+   FILE *bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
+   fprintf(bench_file, "%d,%d,", n, k);
    fclose(bench_file);
    
    //prepare for epanet run
    QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
-   penv.insert("EN_BENCH_FILE", BENCH_FILE);
+   penv.insert("EN_BENCH_FILE", bench_file_path);
    QProcess p;
    p.setProcessEnvironment(penv);
    
@@ -60,9 +60,28 @@ int main(int argc, char **argv) {
     QString epanet_exe = app.arguments()[1];
     std::cout << "using " << epanet_exe.toStdString() << " as epanet exe" << std::endl;
     
-    for (int n = 100; n <= 1800; n+= 200) {
-       for (int k = 2; k <= 20; k+= 1) {
-          run(n, k, epanet_exe);
+    int n_start = 100;
+    int n_stop = 1800;
+    int k_start = 2;
+    int k_stop = 20;
+    if (!QProcessEnvironment::systemEnvironment().contains("OMP_NUM_THREADS")) {
+       std::cout << "set OMP_NUM_THREADS" << std::endl;
+       exit(-1);
+    }
+    QString omp_num_threads = QProcessEnvironment::systemEnvironment().value("OMP_NUM_THREADS");
+    QString bench_file_path = QString(BENCH_FILE_MASK)
+          .arg(n_start).arg(n_stop)
+          .arg(k_start).arg(k_stop)
+          .arg(omp_num_threads);
+    
+    if (QFile::exists(bench_file_path)) {
+       std::cout << "benchfile exists" << std::endl;
+       exit(-1);
+    }
+    
+    for (int n = n_start; n <= n_stop; n+= 200) {
+       for (int k = k_start; k <= k_stop; k+= 1) {
+          run(n, k, epanet_exe, bench_file_path);
        }
     }
     
