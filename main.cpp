@@ -10,8 +10,10 @@
 
 #define BENCH_FILE_MASK   "/tmp/benchfile_%1-%2n_%3-%4k_%5cores.txt"
 #define EN_OUT_FILE  "/tmp/bench_en_out.txt"
+#define EN_BINARY_PATH "./parpenet/src/epanet2"
 
-void run(int n, int k, QString epanet_exe, QString bench_file_path) {
+
+void run(int n, int k, QString bench_file_path) {
    
    //create random graph and dunmp to a tmp epanet file
    graph g = graph::random(n, k);
@@ -38,7 +40,11 @@ void run(int n, int k, QString epanet_exe, QString bench_file_path) {
    QStringList args = {tmp, EN_OUT_FILE};
    p.setStandardOutputFile("/dev/stdout", QIODevice::Append);
    p.setStandardErrorFile("/dev/stderr", QIODevice::Append);
-   p.start(epanet_exe, args);
+   p.start(EN_BINARY_PATH, args);
+   if (!p.waitForStarted()) {
+      std::cerr << "could not start epanet process" << std::endl;
+      exit(-1);
+   }
    std::cout << "started process with pid " << p.pid() << std::endl;
    p.waitForFinished(-1);
    //std::cout << p.readAllStandardError().constData() << std::endl;
@@ -52,13 +58,12 @@ void run(int n, int k, QString epanet_exe, QString bench_file_path) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
 
-    if (app.arguments().size() < 2 || !QFile::exists(app.arguments()[1])) {
-        std::cout << "provide epanet binary file" << std::endl;
+    if (!QFile::exists(EN_BINARY_PATH)) {
+        std::cout << "epanet binary not found" << std::endl;
         exit(-1);
     }
     
-    QString epanet_exe = app.arguments()[1];
-    std::cout << "using " << epanet_exe.toStdString() << " as epanet exe" << std::endl;
+    std::cout << "using " << EN_BINARY_PATH << " as epanet exe" << std::endl;
     
     int n_start = 100;
     int n_stop = 1800;
@@ -81,7 +86,7 @@ int main(int argc, char **argv) {
     
     for (int n = n_start; n <= n_stop; n+= 200) {
        for (int k = k_start; k <= k_stop; k+= 1) {
-          run(n, k, epanet_exe, bench_file_path);
+          run(n, k, bench_file_path);
        }
     }
     

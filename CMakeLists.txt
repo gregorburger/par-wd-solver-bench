@@ -7,10 +7,26 @@ find_package(Boost COMPONENTS graph REQUIRED)
 
 include(${QT_USE_FILE})
 
+find_package(Git REQUIRED)
+
+if (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
+    message(STATUS "parpenet submodule already exists")
+else (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
+    message(STATUS "preparing parpenet submodule")
+    execute_process(COMMAND ${GIT_EXECUTABEL} submodules init)
+    execute_process(COMMAND ${GIT_EXECUTABEL} submodules update)
+    execute_process(COMMAND ${GIT_EXECUTABEL} checkout -t bench-both 
+                    WORKING_DIRECTORY parpenet)
+endif (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
+
 file(GLOB SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 list(REMOVE_ITEM SRCS "solver.h" "solver.cpp")#disable solver
 
+link_directories(${CMAKE_BINARY_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${OpenMP_CXX_FLAGS}")
-link_directories(${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+
 add_executable(bench ${SRCS})
 target_link_libraries(bench ${QT_LIBRARIES} -lgfortran -lblas -llapack)
+
+add_subdirectory(parpenet/src)
