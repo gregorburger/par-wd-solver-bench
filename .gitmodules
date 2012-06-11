@@ -1,0 +1,3 @@
+[submodule "parpenet"]
+	path = parpenet
+	url = git@github.com:gregorburger/parpenet.git
