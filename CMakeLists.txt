@@ -13,10 +13,12 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
     message(STATUS "parpenet submodule already exists")
 else (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
     message(STATUS "preparing parpenet submodule")
-    execute_process(COMMAND ${GIT_EXECUTABEL} submodules init)
-    execute_process(COMMAND ${GIT_EXECUTABEL} submodules update)
-    execute_process(COMMAND ${GIT_EXECUTABEL} checkout -t bench-both 
-                    WORKING_DIRECTORY parpenet)
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule init
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    execute_process(COMMAND ${GIT_EXECUTABLE} checkout -t origin/bench-both 
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/parpenet/)
 endif (EXISTS ${CMAKE_SOURCE_DIR}/parpenet/src)
 
 file(GLOB SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
