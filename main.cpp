@@ -20,7 +20,7 @@ void run(int n, int k, QString bench_file_path) {
    if (!g.is_connected())
        g.make_connected();
 
-   g.make_symmetric();
+   //g.make_symmetric();
    
    char tmp[L_tmpnam];
    tmpnam(tmp);
