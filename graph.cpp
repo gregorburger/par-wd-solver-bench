@@ -119,9 +119,10 @@ graph graph::random(int n, int k) {
     for (int i = 0; i < n; ++i) {
         std::vector<double> dists;
         tree.search(i, k, &g.connections[i], &dists);
+        g.connections[i].erase(g.connections[i].begin(), g.connections[i].begin()+1);
 #ifndef NDEBUG
-        for (int j = 0; j < k; ++j) {
-            assert(dists[j] == g.nodes[i].dist(g.nodes[g.connections[i][j]]));
+        for (int j = 0; j < k-1; ++j) {
+            assert(dists[j+1] == g.nodes[i].dist(g.nodes[g.connections[i][j]]));
         }
 #endif
     }
