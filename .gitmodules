@@ -1,3 +1,7 @@
-[submodule "parpenet"]
-	path = parpenet
+[submodule "epanet-par"]
+	path = epanet-par
+	url = git@github.com:gregorburger/parpenet.git
+
+[submodule "epanet-seq"]
+	path = epanet-seq
 	url = git@github.com:gregorburger/parpenet.git
