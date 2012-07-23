@@ -144,6 +144,9 @@ int graph::make_symmetric() {
     return added;
 }
 
+boost::random::uniform_int_distribution<> elev_rnd(3, 12);
+boost::random::uniform_int_distribution<> demand_rnd(1, 5);
+
 void graph::dump_epanet(const char *file) const {
     FILE *out = fopen(file, "w");
     
@@ -152,7 +155,7 @@ void graph::dump_epanet(const char *file) const {
     fprintf(out, "\n[JUNCTIONS]\n");
     
     for (int i = 0; i < nodes.size(); ++i) {
-        fprintf(out, " %d               	0           	0           	                	;\n", i+2); //id 1 is for the tank
+        fprintf(out, " %d               	%d           	%d           	                	;\n", i+2, elev_rnd(rng)*10, demand_rnd(rng)*10); //id 1 is for the tank
     }
     
     
