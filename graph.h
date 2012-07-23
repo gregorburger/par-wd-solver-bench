@@ -62,7 +62,7 @@ public:
     bool is_connected() const;
     bool is_connected(bool *seen) const;
     
-    void make_connected();
+    int make_connected();
     
     
     std::vector<coord> nodes;

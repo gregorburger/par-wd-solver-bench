@@ -210,7 +210,7 @@ bool graph::is_connected(bool *seen) const {
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/strong_components.hpp>
 
-void graph::make_connected() {
+int graph::make_connected() {
     boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> g;
     for (int i = 0; i < connections.size(); i++) {
         for (int j = 0; j < connections[i].size(); j++) {
@@ -219,6 +219,7 @@ void graph::make_connected() {
     }
     std::vector<int> component(boost::num_vertices(g));
     int nc = boost::strong_components(g, &component[0]);
+    int n_graphs = nc; //store for return
     for (int c = 0; c < nc-1; c++) {
         std::pair<int, int> new_vertex(-1, -1);
         double min_dist = 10.0; //max dist is max sqrt(2)
@@ -238,4 +239,5 @@ void graph::make_connected() {
         assert(new_vertex.first >= 0);
     }
     assert(is_connected());
+    return n_graphs;
 }
