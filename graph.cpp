@@ -66,23 +66,6 @@ void graph::plot(const char *file) const {
     p.end();
 }
 
-void knn(std::vector<graph::coord> nodes, const graph::coord &theone, 
-         int k) {
-    
-    std::list<int> nb;
-    std::list<double> dists;
-    
-    nb.push_back(0);
-    dists.push_back(theone.dist(nodes[0]));
-    
-    for (int i = 1; i < k; ++i) {
-        double d = nodes[i].dist(nodes[*nb.end()]);
-        if (d < *dists.end()) {
-            
-        }
-    }
-}
-
 /**
  * @brief generate a rondom graph::cord on ([0,1], [0,1])
  * @return random graph::coord
