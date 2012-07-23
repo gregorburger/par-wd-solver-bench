@@ -10,7 +10,8 @@
 
 #define BENCH_FILE_MASK   "benchfile_%1-%2n_%3-%4k_%5cores.txt"
 #define EN_OUT_FILE  "bench_en_out.txt"
-#define EN_BINARY_PATH "./parpenet/src/epanet2"
+#define EN_PAR_BINARY_PATH "./epanet-par/src/epanet-par"
+#define EN_SEQ_BINARY_PATH "./epanet-seq/src/epanet-seq"
 
 
 void run(int n, int k, QString bench_file_path) {
@@ -40,15 +41,27 @@ void run(int n, int k, QString bench_file_path) {
    QStringList args = {tmp, EN_OUT_FILE};
    p.setStandardOutputFile("/dev/stdout", QIODevice::Append);
    p.setStandardErrorFile("/dev/stderr", QIODevice::Append);
-   p.start(EN_BINARY_PATH, args);
+   p.start(EN_SEQ_BINARY_PATH, args);
    if (!p.waitForStarted()) {
       std::cerr << "could not start epanet process" << std::endl;
       exit(-1);
    }
-   std::cout << "started process with pid " << p.pid() << std::endl;
    p.waitForFinished(-1);
-   //std::cout << p.readAllStandardError().constData() << std::endl;
-   //std::cout << p.readAllStandardOutput().constData() << std::endl;
+   
+   bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
+   fprintf(bench_file, ",");
+   fclose(bench_file);
+   
+   p.start(EN_PAR_BINARY_PATH, args);
+   if (!p.waitForStarted()) {
+      std::cerr << "could not start epanet process" << std::endl;
+      exit(-1);
+   }
+   p.waitForFinished(-1);
+   
+   bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
+   fprintf(bench_file, "\n");
+   fclose(bench_file);
    
    //cleanup
    QFile::remove(EN_OUT_FILE);
@@ -58,17 +71,18 @@ void run(int n, int k, QString bench_file_path) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
 
-    if (!QFile::exists(EN_BINARY_PATH)) {
-        std::cout << "epanet binary not found" << std::endl;
+    if (!QFile::exists(EN_SEQ_BINARY_PATH) || !QFile::exists(EN_PAR_BINARY_PATH)) {
+        std::cout << "epanet binaries not found" << std::endl;
         exit(-1);
     }
     
-    std::cout << "using " << EN_BINARY_PATH << " as epanet exe" << std::endl;
+    std::cout << "using " << EN_PAR_BINARY_PATH << " as parallel epanet exe" << std::endl;
+    std::cout << "using " << EN_SEQ_BINARY_PATH << " as sequential epanet exe" << std::endl;
     
-    int n_start = 100;
+    int n_start = 1000;
     int n_stop = 1800;
-    int k_start = 2;
-    int k_stop = 20;
+    int k_start = 4;
+    int k_stop = 12;
     if (!QProcessEnvironment::systemEnvironment().contains("OMP_NUM_THREADS")) {
        std::cout << "set OMP_NUM_THREADS" << std::endl;
        exit(-1);
@@ -85,7 +99,7 @@ int main(int argc, char **argv) {
     }
     
     for (int n = n_start; n <= n_stop; n+= 200) {
-       for (int k = k_start; k <= k_stop; k+= 1) {
+       for (int k = k_start; k <= k_stop; k+= 2) {
           run(n, k, bench_file_path);
        }
     }
