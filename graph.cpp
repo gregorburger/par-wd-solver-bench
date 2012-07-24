@@ -2,7 +2,17 @@
 #include <cstdio>
 #include <memory>
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/graph/strong_components.hpp>
 #include <boost/random.hpp>
+
+#include <QPrinter>
+#include <QPainter>
+#include <QApplication>
+
+#include "vp-tree.h"
+
 
 boost::random::mt19937 rng(std::time(0));
 //boost::random::normal_distribution<> gen(0.0, 0.7);
@@ -18,9 +28,7 @@ void graph::dump_matlab(const char *file) const {
     fclose(out);
 }
 
-#include <QPrinter>
-#include <QPainter>
-#include <QApplication>
+
 
 #define SCALE 700
 #define MARGIN 15
@@ -74,8 +82,6 @@ graph::coord random_coord() {
     return graph::coord{gen(rng), gen(rng)};
 }
 
-#include "vp-tree.h"
-
 graph graph::random(int n, int k) {
     k++; //self always included
     graph g;
@@ -103,11 +109,6 @@ graph graph::random(int n, int k) {
         std::vector<double> dists;
         tree.search(i, k, &g.connections[i], &dists);
         g.connections[i].erase(g.connections[i].begin(), g.connections[i].begin()+1);
-#ifndef NDEBUG
-        for (int j = 0; j < k-1; ++j) {
-            assert(dists[j+1] == g.nodes[i].dist(g.nodes[g.connections[i][j]]));
-        }
-#endif
     }
     
     return g;
@@ -191,10 +192,6 @@ bool graph::is_connected(bool *seen) const {
    int reachable = breadth_first(*this, 0, seen);
    return reachable == nodes.size();
 }
-
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/connected_components.hpp>
-#include <boost/graph/strong_components.hpp>
 
 int graph::make_connected() {
     boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> g;
