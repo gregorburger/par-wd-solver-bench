@@ -128,6 +128,64 @@ int graph::make_symmetric() {
     return added;
 }
 
+struct edge {
+    int i, j;
+    edge(int i, int j) : i(i), j(j) {
+        if (j < i) std::swap(i, j);
+    }
+    bool operator==(const edge &other) const {
+        return i == other.i && j == other.j;
+    }
+};
+
+struct edge_hash {
+    std::size_t operator()(const edge &e) const {
+        return e.i*73856093 ^ e.j*19349663;
+    }
+};
+
+graph graph::circle(int n) {
+    graph g;
+    g.nodes.resize(n);
+    g.connections.resize(n);
+    
+    for (int i = 0; i < n; i++) {
+        g.connections[i].push_back((i+1)%n);
+    }
+    
+    return g;
+}
+
+graph graph::ring(int n) {
+    graph g;
+    g.connections.resize(2*n);
+    g.nodes.resize(2*n); //not used but stores the size ;-)
+    
+    for (int i = 0; i < n; i++) {
+        g.connections[i].push_back((i+1)%n);
+        g.connections[n+i].push_back(n+(i+1)%n);
+        g.connections[i].push_back(n+i);
+    }
+    assert(g.connections[n-1][0] == 0);
+    assert(g.connections[2*n-1][0] == n);
+    return g;
+}
+
+graph graph::torus(int n, int k) {
+    graph g;
+    g.nodes.resize(n*k);
+    g.connections.resize(n*k);
+    
+    for (int j = 0; j < k; j++) {
+        for (int i = 0; i < n; i++) {
+            g.connections[n*j+i].push_back(n*j+(i+1)%n);
+            g.connections[n*j+i].push_back(n*((j+1)%k)+i);
+        }
+    }
+    
+    return g;
+}
+
 boost::random::uniform_int_distribution<> elev_rnd(3, 12);
 boost::random::uniform_int_distribution<> demand_rnd(1, 5);
 

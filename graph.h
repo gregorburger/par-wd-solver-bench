@@ -30,6 +30,30 @@ public:
      * @return the random graph
      */
     static graph random(int n, int k);
+    
+    /**
+     * @brief return a circle graph with n nodes. each node has two neighbors
+     * @param n
+     * @return 
+     */
+    static graph circle(int n);
+    
+    /**
+     * @brief generate a ring with 2*n nodes and n*3 edges => k==3
+     * @param n
+     * @return 
+     */
+    static graph ring(int n);
+    
+    /**
+     * @brief generate a torus graph with n nodes in length and k around the torous
+     * it hast n*k nodes with 2*n*k connections which means in a undirected graph 4
+     * neighbors per node
+     * @param n length of torous
+     * @param k height of torous
+     * @return a graph representing a torous
+     */
+    static graph torus(int n, int k);
 
     /**
      * @brief dump graph for loading int matlab with load and spconvert
