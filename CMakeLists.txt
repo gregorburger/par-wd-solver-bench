@@ -2,10 +2,22 @@ cmake_minimum_required(VERSION 2.8)
 project(par-wb-bench)
 
 find_package(OpenMP)
+
 find_package(Qt4 REQUIRED QtCore QtGui)
+include(${QT_USE_FILE})
+
 find_package(Boost COMPONENTS graph REQUIRED)
 
-include(${QT_USE_FILE})
+find_package(SWIG REQUIRED)
+include(${SWIG_USE_FILE})
+
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+set_source_files_properties(parwdbench.i PROPERTIES CPLUSPLUS ON)
+swig_add_module(parwdbench python parwdbench.i graph.cpp)
+swig_link_libraries(parwdbench ${QT_LIBRARIES})
 
 find_package(Git REQUIRED)
 
