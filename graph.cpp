@@ -28,7 +28,20 @@ void graph::dump_matlab(const char *file) const {
     fclose(out);
 }
 
-
+void graph::dump_dot(const char *file) const {
+    FILE *out = fopen(file, "w");
+    
+    fprintf(out, "graph G {\n");
+    
+    for (int i = 0; i < nodes.size(); ++i) {
+        for (int j = 0; j < connections[i].size(); j++) {
+            fprintf(out, "%d -- %d;\n", i, connections[i][j]);
+        }
+    }
+    
+    fprintf(out, "}");
+    fclose(out);
+}
 
 #define SCALE 700
 #define MARGIN 15

@@ -68,6 +68,12 @@ public:
     void dump_epanet(const char *file) const;
     
     /**
+     * @brief dump into dot file 
+     * @param to where
+     */
+    void dump_dot(const char *file) const;
+    
+    /**
      * @brief plot to a pdf file
      * @param file
      */
