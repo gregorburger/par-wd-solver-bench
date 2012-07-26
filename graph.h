@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <cmath>
-#include <iostream>
 
 /**
  * @brief 2d Graph abstraction of a water distribution network
@@ -90,10 +89,8 @@ public:
      * @return true if connected otherwise false
      */
     bool is_connected() const;
-    bool is_connected(bool *seen) const;
     
     int make_connected();
-    
     
     std::vector<coord> nodes;
     std::vector<std::vector<int> > connections;

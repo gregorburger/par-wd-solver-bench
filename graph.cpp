@@ -239,29 +239,18 @@ void graph::dump_epanet(const char *file) const {
     fclose(out);
 }
 
-int breadth_first(const graph &g, int node, bool *seen) {
-   int c = 0;
-   seen[node] = true;
-   for (int nb: g.connections[node]) {
-      if (seen[nb] == false) {
-         //seen[nb] = true;
-         c += breadth_first(g, nb, seen);
-      }
-   }
-   return c+1;
-}
 
 bool graph::is_connected() const {
-   bool *seen = new bool[nodes.size()];
-   bool c = is_connected(seen);
-   delete[] seen;
-   return c;
-}
-
-bool graph::is_connected(bool *seen) const {
-   for (int i = 0; i < nodes.size(); i++) seen[i] = false;
-   int reachable = breadth_first(*this, 0, seen);
-   return reachable == nodes.size();
+   boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> g;
+   for (int i = 0; i < connections.size(); i++) {
+       for (int j = 0; j < connections[i].size(); j++) {
+           boost::add_edge(i, connections[i][j], g);
+       }
+   }
+   std::vector<int> component(boost::num_vertices(g));
+   int nc = boost::connected_components(g, &component[0]);
+   
+   return nc == 1;
 }
 
 int graph::make_connected() {
