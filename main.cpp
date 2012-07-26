@@ -7,6 +7,7 @@
 #include <QProcess>
 
 #include <stdio.h>
+#include <iostream>
 
 #define BENCH_FILE_MASK   "benchfile_%1-%2n_%3-%4k_%5cores.txt"
 #define EN_OUT_FILE  "bench_en_out.txt"
@@ -14,22 +15,11 @@
 #define EN_SEQ_BINARY_PATH "./epanet-seq/src/epanet-seq"
 
 
-void run(int n, int k, QString bench_file_path) {
-   
-   //create random graph and dunmp to a tmp epanet file
-   graph g = graph::random(n, k);
-   if (!g.is_connected())
-       g.make_connected();
-
-   //g.make_symmetric();
-   
+void run(const graph &g, QString bench_file_path) {
+   //dump to a tmp epanet file
    char tmp[L_tmpnam];
    tmpnam(tmp);
    g.dump_epanet(tmp);
-   
-   FILE *bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
-   fprintf(bench_file, "%d,%d,", n, k);
-   fclose(bench_file);
    
    //prepare for epanet run
    QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
@@ -48,7 +38,7 @@ void run(int n, int k, QString bench_file_path) {
    }
    p.waitForFinished(-1);
    
-   bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
+   FILE *bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
    fprintf(bench_file, ",");
    fclose(bench_file);
    
@@ -99,8 +89,33 @@ int main(int argc, char **argv) {
     }
     
     for (int n = n_start; n <= n_stop; n+= 200) {
-       for (int k = k_start; k <= k_stop; k+= 2) {
-          run(n, k, bench_file_path);
+       for (int k = k_start; k <= k_stop; k+= 1) {
+            graph g;
+            if (k == 1) {
+                std::cerr << "k == 1 not possible" << std::endl;
+                exit(-1);
+            }
+            if (k == 2) {
+                g = graph::circle(n);
+            }
+            if (k == 3) {
+                g = graph::ring(n/2);
+            }
+            if (k == 4) {
+                g = graph::torus(n/4, 4);
+            }
+            if (k > 4) {
+                g = graph::random(n, k);
+                if (!g.is_connected())
+                    g.make_connected();
+            }
+            
+            FILE *bench_file = fopen(bench_file_path.toLocal8Bit().constData(), "a");
+            fprintf(bench_file, "%d,%d,", n, k);
+            fclose(bench_file);
+            
+            //g.make_symmetric();
+            run(g, bench_file_path);
        }
     }
     
